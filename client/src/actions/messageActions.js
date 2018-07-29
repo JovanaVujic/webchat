@@ -27,10 +27,14 @@ export const getChatHistory = chat_id => dispatch => {
 };
 
 // Get all profiles
-export const getLastChatMessages = () => dispatch => {
+export const getLastChatMessages = (recipientID) => dispatch => {
   dispatch(setMessagesLoading());
   axios
-    .get('/api/messages/all')
+    .get('/api/messages/all', recipientID ? {
+      params: {
+        recipient: recipientID
+      }
+    } : {})
     .then(res =>
       dispatch({
         type: GET_MESSAGES,

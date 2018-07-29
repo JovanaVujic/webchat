@@ -30,13 +30,13 @@ class Profile extends Component {
         </div>
       );
     } else {
-      <div>
+        profileContent = (<div>
         <img
           src={avatar}
           style={{ margin: "auto", display: "block" }}
           alt="Avatar"
         />
-      </div>;
+      </div>);
     }
 
     return (

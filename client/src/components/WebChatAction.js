@@ -21,8 +21,23 @@ class WebChatAction extends Component {
     this.onSubmit = this.submitHandler.bind(this);
   }
 
+  /**
+   * Component update hook is invoked immediately after updating occurs
+   *
+   * @param prevProps {Object}
+   */
+  componentDidUpdate = prevProps => {
+    const { chat } = this.props.message;
+    if (JSON.stringify(prevProps.message) !== JSON.stringify(this.props.message) && chat) {
+      socket.emit('new_message', {
+        room: this.props.recipient._id,
+        chat
+      });
+    }
+  };
+
   changeHandler = e => {
-    this.setState({ [e.target.name]: e.target.value });
+    this.setState({ text: e.target.value });
   };
 
   submitHandler = e => {
@@ -33,10 +48,6 @@ class WebChatAction extends Component {
     };
 
     this.props.createChat(this.props.recipient._id, newMessage);
-
-    newMessage.room = this.props.recipient._id;
-
-    socket.emit('new_message', newMessage);
   };
 
   render() {
@@ -68,7 +79,8 @@ WebChatAction.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  errors: state.errors
+  errors: state.errors,
+  message: state.message.message
 });
 
 export default connect(
