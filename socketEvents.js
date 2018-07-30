@@ -2,6 +2,7 @@ const socket = require('socket.io');
 const ent = require('ent');
 
 module.exports = io => {
+
   // Set socket.io listeners.
   io.on('connection', socket => {
     console.log('user connected');
@@ -17,7 +18,7 @@ module.exports = io => {
     });
 
     socket.on('new_message', data => {
-      io.sockets.in(data.room).emit('refresh_messages', data.text);
+      io.sockets.in(data.room).emit('refresh_messages', data.chat);
     });
 
     socket.on('disconnect', () => {

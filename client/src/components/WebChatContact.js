@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import isEmpty from '../validation/is-empty';
 import avatar from './common/avatar.jpg';
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 
 class WebChatContact extends Component {
   render() {

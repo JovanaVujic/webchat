@@ -1,4 +1,4 @@
-import isEmpty from "../validation/is-empty";
+// import isEmpty from "../validation/is-empty";
 
 import { PROFILE_LOADING, GET_PROFILE, GET_PROFILES } from "../actions/types";
 

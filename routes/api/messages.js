@@ -37,24 +37,26 @@ router.get(
   '/all',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    Chat.find({ participants: req.user.id })
+
+    Chat.find({ participants: req.query.recipient ? [req.user.id, req.query.recipient] : req.user.id })
       .then(chats => {
         if (!chats) {
           return res.status(404).json({ error: 'Chats not found' });
-
-          let messages = [];
-          chats.map(chat => {
-            Message.find({ chat: chat._id })
-              .sort({ date: -1 })
-              .populate('user', ['name'])
-              .limit(1)
-              .then(message => {
-                messages.push(message);
-                return res.json({ messages: messages });
-              })
-              .catch(err => res.json(err));
-          });
         }
+
+        // let messages = [];
+        chats.map(chat => {
+          Message.find({ chat: chat._id })
+            .sort('-date')
+            .populate('sender', ['name'])
+            .limit(1)
+            .then(message => {
+              res.json(message);
+              // messages.push(message);
+              // return res.json(messages);
+            })
+            .catch(err => res.json(err));
+        });
       })
       .catch(err => res.json(err));
   }
