@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-//Create schema
+//Create Chat schema
 const ChatSchema = new Schema({
   participants: [
     {
@@ -11,4 +11,5 @@ const ChatSchema = new Schema({
   ]
 });
 
+//export Chat model based on ChatSchema
 module.exports = Chat = mongoose.model('chat', ChatSchema);

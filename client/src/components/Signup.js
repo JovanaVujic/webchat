@@ -1,17 +1,17 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { Link, withRouter } from "react-router-dom";
-import { connect } from "react-redux";
-import { signupUser } from "../actions/authActions";
-import InputField from "./common/InputField";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Link, withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { signupUser } from '../actions/authActions';
+import InputField from './common/InputField';
 
 class Signup extends Component {
   constructor() {
     super();
     this.state = {
-      name: "",
-      password: "",
-      password2: "",
+      name: '',
+      password: '',
+      password2: '',
       errors: {}
     };
 
@@ -21,7 +21,7 @@ class Signup extends Component {
 
   componentDidMount = () => {
     if (this.props.auth.isAuthenticated) {
-      this.props.history.push("/webchat");
+      this.props.history.push('/webchat');
     }
   };
 
@@ -32,6 +32,7 @@ class Signup extends Component {
   };
 
   changeHandler = e => {
+    this.state.errors[e.target.name] = '';
     this.setState({ [e.target.name]: e.target.value });
   };
 
@@ -54,7 +55,7 @@ class Signup extends Component {
       <div className="container">
         <div className="row">
           <div className="col-md-8 m-auto">
-            <h2 className="display-4 text-center">Sign up</h2>
+            <h2 className="display-4 text-center mt-4">Sign up</h2>
 
             <form noValidate onSubmit={this.submitHandler}>
               <InputField
@@ -86,7 +87,7 @@ class Signup extends Component {
               <input type="submit" className="btn btn-info btn-block mt-4" />
             </form>
             <p className="mt-3">
-              Already have an account?
+              Already have an account?{' '}
               <Link to="/login" className="font-weight-bold">
                 Log In
               </Link>

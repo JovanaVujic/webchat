@@ -1,16 +1,8 @@
-import React from "react";
-import classnames from "classnames";
-import PropTypes from "prop-types";
+import React from 'react';
+import classnames from 'classnames';
+import PropTypes from 'prop-types';
 
-const InputField = ({
-  type,
-  name,
-  value,
-  placeholder,
-  icon,
-  error,
-  onChange
-}) => {
+const InputField = ({ type, name, value, placeholder, icon, error, onChange, onKeyDown, onBlur }) => {
   return (
     <div className="input-group form-group">
       {icon ? (
@@ -20,18 +12,20 @@ const InputField = ({
           </span>
         </div>
       ) : (
-        ""
+        ''
       )}
 
       <input
         type={type}
-        className={classnames("form-control form-control-lg", {
-          "is-invalid": error
+        className={classnames('form-control', {
+          'is-invalid': error
         })}
         placeholder={placeholder}
         name={name}
         value={value}
         onChange={onChange}
+        onKeyDown={onKeyDown}
+        onBlur={onBlur}
       />
       {error && <div className="invalid-feedback">{error}</div>}
     </div>
@@ -45,11 +39,13 @@ InputField.propTypes = {
   placeholder: PropTypes.string,
   icon: PropTypes.string,
   error: PropTypes.string,
-  onChange: PropTypes.func.isRequired
+  onChange: PropTypes.func.isRequired,
+  onKeyDown: PropTypes.func,
+  onBlur: PropTypes.func
 };
 
 InputField.defaultProps = {
-  type: "text"
+  type: 'text'
 };
 
 export default InputField;

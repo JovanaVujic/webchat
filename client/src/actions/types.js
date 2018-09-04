@@ -9,3 +9,5 @@ export const GET_MESSAGE = 'GET_MESSAGE';
 export const GET_MESSAGES = 'GET_MESSAGES';
 export const MESSAGES_LOADING = 'MESSAGES_LOADING';
 export const CLEAR_CHAT = 'CLEAR_CHAT';
+export const ADD_MESSAGE = 'ADD_MESSAGE';
+export const DELETE_MESSAGE = 'DELETE_MESSAGE';

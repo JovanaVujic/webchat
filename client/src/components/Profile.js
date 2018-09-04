@@ -1,13 +1,21 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
-import { logoutUser } from "../actions/authActions";
-import isEmpty from "../validation/is-empty";
-import avatar from "./common/avatar.jpg";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { logoutUser } from '../actions/authActions';
+import { clearCurrentProfile } from '../actions/profileActions';
+import isEmpty from '../validation/is-empty';
+import avatar from './common/avatar.jpg';
 
 class Profile extends Component {
+  //Logout handler
   logoutHandler = e => {
     e.preventDefault();
+
+    const { socket, auth } = this.props;
+
+    socket.emit('logout', auth.user.name);
+
+    this.props.clearCurrentProfile();
     this.props.logoutUser();
   };
 
@@ -15,37 +23,35 @@ class Profile extends Component {
     const { user } = this.props.auth;
     const { profile } = this.props;
 
-    let profileContent;
+    let avatarSrc;
+    let profileStatus;
 
     // Check if logged in user has profile data
     if (Object.keys(profile).length > 0) {
-      profileContent = (
-        <div>
-          <img
-            src={isEmpty(profile.avatar) ? avatar : profile.avatar}
-            style={{ margin: "auto", display: "block" }}
-            alt="Avatar"
-          />
-          {profile.status}
-        </div>
-      );
+      avatarSrc = isEmpty(profile.avatar) ? avatar : profile.avatar;
+      profileStatus = profile.status;
     } else {
-        profileContent = (<div>
-        <img
-          src={avatar}
-          style={{ margin: "auto", display: "block" }}
-          alt="Avatar"
-        />
-      </div>);
+      avatarSrc = avatar;
     }
 
+    let avatarContent = (
+      <div className="profile-avatar">
+        <img src={avatarSrc} alt="Avatar" />
+      </div>
+    );
+
     return (
-      <div>
-        {user.name}
-        {profileContent}
-        <a href="" onClick={this.logoutHandler.bind(this)}>
-          Logout
-        </a>
+      <div className="container profile">
+        <div className="row">
+          <a href="" className="logout" onClick={this.logoutHandler.bind(this)}>
+            Logout
+          </a>
+          <div className="profile-data">
+            {avatarContent}
+            <div className="profile-name">{user.name}</div>
+            <div className="profile-status">{profileStatus}</div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -63,5 +69,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { logoutUser }
+  { logoutUser, clearCurrentProfile }
 )(Profile);

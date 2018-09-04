@@ -1,18 +1,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import io from 'socket.io-client';
+import isEmpty from '../validation/is-empty';
 
-import {
-  getCurrentProfile,
-  getProfiles,
-  createProfile
-} from '../actions/profileActions';
+import { getCurrentProfile, getProfiles, createProfile } from '../actions/profileActions';
 
 import Loader from './common/Loader';
 import InputField from './common/InputField';
+import UploadField from './common/UploadField';
 
 import Profile from './Profile';
 import WebChatRoom from './WebChatRoom';
+
+const socket = io();
 
 class WebChat extends Component {
   constructor(props) {
@@ -21,6 +22,10 @@ class WebChat extends Component {
       displayEditForm: false,
       avatar: '',
       status: '',
+      messageOnOff: '',
+      onoffStatus: '',
+      updateProfile: '',
+      doReload: false,
       errors: {}
     };
 
@@ -28,18 +33,62 @@ class WebChat extends Component {
     this.onSubmit = this.submitHandler.bind(this);
   }
 
+  /**
+   * Component lifecycle hook when component did mount (inserted into the DOM tree)
+   * It will trigger an extra rendering, but it will happen before the browser updates the screen.
+   * This guarantees that even though the render() will be called twice in this case,
+   * the user won’t see the intermediate state.
+   */
   componentDidMount = () => {
     this.props.getCurrentProfile();
     this.props.getProfiles();
+
+    socket.on('user joined', data => this.socketHandler(data.username, 'online'));
+
+    socket.on('user left', data => this.socketHandler(data.username, 'offline'));
+  };
+
+  /**
+   * Component update hook is invoked immediately after updating occurs
+   */
+  componentWillUpdate = () => {
+    if (this.state.updateProfile !== '') {
+      let onoff = this.state.onoffStatus === 'offline' ? false : true;
+      this.updateProfileHandler(this.state.updateProfile, onoff);
+    }
+  };
+
+  updateProfileHandler = (username, isOnline) => {
+    const { profiles } = this.props.profile;
+
+    profiles.forEach(profile => {
+      if (profile.user.name === username) {
+        profile.user.isOnline = isOnline;
+        this.doReload();
+        return;
+      }
+    });
+  };
+
+  doReload = () => {
+    this.setState({ doReload: !this.state.doReload });
+  };
+
+  /**
+   * Component lifecycle hook when component is unmounted and destroyed
+   */
+  componentWillUnmount = () => {
+    socket.off('user joined');
+    socket.off('user left');
   };
 
   changeHandler = e => {
     switch (e.target.name) {
       case 'avatar':
-        this.setState({ [e.target.name]: e.target.files[0] });
+        this.setState({ avatar: e.target.files[0] });
         break;
       default:
-        this.setState({ [e.target.name]: e.target.value });
+        this.setState({ status: e.target.value });
     }
   };
 
@@ -53,51 +102,75 @@ class WebChat extends Component {
     this.props.createProfile(profileData);
 
     this.setState({
-      displayEditForm: false,
       avatar: '',
       status: ''
     });
   };
 
+  closeBoxHandler = e => {
+    e.preventDefault();
+    this.setState({ displayEditForm: false });
+  };
+
+  socketHandler = (username, onoff) => {
+    if (username !== this.props.auth.user.name) {
+      this.setUserMessage(username, onoff);
+    }
+
+    this.setState({ updateProfile: '' });
+
+    setTimeout(() => {
+      this.setState({ messageOnOff: '' });
+    }, 5000);
+  };
+
+  setUserMessage = (name, status) => {
+    this.setState({
+      onoffStatus: status,
+      messageOnOff: 'User ' + name + ' is ' + status,
+      updateProfile: name
+    });
+  };
+
   render() {
-    const { errors, displayEditForm } = this.state;
+    const { errors, displayEditForm, messageOnOff, onoffStatus, doReload } = this.state;
     const { profile, profiles, loading } = this.props.profile;
 
     let webChatContent;
     let profileContent;
     let editFormContent;
+    let hasProfile = false;
 
     if (profile === null || loading) {
       profileContent = <Loader />;
     } else {
+      if (!isEmpty(profile)) hasProfile = true;
+
       if (displayEditForm) {
         editFormContent = (
-          <form noValidate onSubmit={this.submitHandler}>
-            <InputField
-              placeholder="Status"
-              name="status"
-              value={this.state.status}
-              onChange={this.changeHandler}
-              error={errors.status}
-            />
-            <InputField
-              placeholder="Avatar"
-              name="avatar"
-              type="file"
-              value={this.state.avatar}
-              onChange={this.changeHandler}
-              error={errors.avatar}
-            />
-            <button type="submit">
-              Save
-              <i className="fas fa-briefcase btn-icon" />
-            </button>
-          </form>
+          <div className="edit-profile-form">
+            <a href="" className="close-box" onClick={this.closeBoxHandler.bind(this)}>
+              X
+            </a>
+            <form noValidate onSubmit={this.submitHandler}>
+              <InputField
+                placeholder="Status"
+                name="status"
+                value={this.state.status}
+                onChange={this.changeHandler}
+                error={errors.status}
+              />
+              <UploadField placeholder="Avatar" name="avatar" value={this.state.avatar} onChange={this.changeHandler} />
+              <button type="submit" className="btn btn-info btn-block">
+                Save
+              </button>
+            </form>
+          </div>
         );
       }
       profileContent = (
-        <div>
-          <Profile profile={profile} />
+        <div className="webchat">
+          <Profile profile={profile} socket={socket} />
           <button
             type="button"
             onClick={() =>
@@ -105,29 +178,23 @@ class WebChat extends Component {
                 displayEditForm: !prevState.displayEditForm
               }))
             }
-            className={displayEditForm ? 'd-none' : ''}
+            className={'btn btn-link btn-profile-action'}
           >
-            <i className="fas fa-pencil-alt" />
+            {!hasProfile ? 'Create Profile' : 'Edit Profile'}
           </button>
           {editFormContent}
         </div>
       );
 
-      if (profiles === null || loading) {
-        webChatContent = <Loader />;
-      } else {
-        webChatContent = <WebChatRoom profiles={profiles} />;
-      }
+      webChatContent = hasProfile ? <WebChatRoom profiles={profiles} socket={socket} reload={doReload} /> : null;
     }
 
     return (
       <div>
-        {this.state.message}
         {profileContent}
-        <div className="container">
-          <div className="row">
-            <div className="chat-room">{webChatContent}</div>
-          </div>
+        <div className="webchatroom">
+          <div className="chat-room container">{webChatContent}</div>
+          <div className={'chat-user fade show ' + onoffStatus}>{messageOnOff}</div>
         </div>
       </div>
     );

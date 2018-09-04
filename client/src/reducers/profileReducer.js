@@ -1,6 +1,6 @@
 // import isEmpty from "../validation/is-empty";
 
-import { PROFILE_LOADING, GET_PROFILE, GET_PROFILES } from "../actions/types";
+import { PROFILE_LOADING, GET_PROFILE, GET_PROFILES, CLEAR_CURRENT_PROFILE } from '../actions/types';
 
 const initialState = {
   profile: {},
@@ -26,6 +26,11 @@ export default function(state = initialState, action) {
         ...state,
         profiles: action.payload,
         loading: false
+      };
+    case CLEAR_CURRENT_PROFILE:
+      return {
+        ...state,
+        profile: null
       };
     default:
       return state;

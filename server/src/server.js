@@ -1,15 +1,17 @@
 const express = require('express');
-const socketEvents = require('./socketEvents');
-
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 
+//Load routes
 const users = require('./routes/api/users');
 const profile = require('./routes/api/profile');
 const messages = require('./routes/api/messages');
 
 const app = express();
+
+//Load server socket events
+const socketEvents = require('./socketEvents');
 
 // Body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));

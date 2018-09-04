@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 import {
   GET_ERRORS,
@@ -7,12 +7,13 @@ import {
   SET_CURRENT_USER,
   PROFILE_LOADING,
   CLEAR_CURRENT_PROFILE
-} from "./types";
+} from './types';
 
+//Get current profile
 export const getCurrentProfile = () => dispatch => {
   dispatch(setProfileLoading());
   axios
-    .get("/api/profile")
+    .get('/api/profile')
     .then(res => {
       dispatch({
         type: GET_PROFILE,
@@ -31,7 +32,7 @@ export const getCurrentProfile = () => dispatch => {
 export const getProfiles = () => dispatch => {
   dispatch(setProfileLoading());
   axios
-    .get("/api/profile/all")
+    .get('/api/profile/all')
     .then(res =>
       dispatch({
         type: GET_PROFILES,
@@ -46,15 +47,16 @@ export const getProfiles = () => dispatch => {
     );
 };
 
+//Create profile
 export const createProfile = newProfile => dispatch => {
   const config = {
     headers: {
-      "content-type": "multipart/form-data"
+      'content-type': 'multipart/form-data'
     }
   };
 
   axios
-    .post("/api/profile", newProfile, config)
+    .post('/api/profile', newProfile, config)
     .then(res =>
       dispatch({
         type: GET_PROFILE,
@@ -69,10 +71,11 @@ export const createProfile = newProfile => dispatch => {
     );
 };
 
+//Delete account
 export const deleteAccount = () => dispatch => {
-  if (window.confirm("Are you sure?"))
+  if (window.confirm('Are you sure?'))
     axios
-      .delete("/api/profile")
+      .delete('/api/profile')
       .then(res =>
         dispatch({
           type: SET_CURRENT_USER,

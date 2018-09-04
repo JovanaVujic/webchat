@@ -1,17 +1,12 @@
 import axios from 'axios';
 
-import {
-  GET_ERRORS,
-  GET_MESSAGE,
-  GET_MESSAGES,
-  CLEAR_CHAT,
-  MESSAGES_LOADING
-} from './types';
+import { GET_ERRORS, GET_MESSAGE, GET_MESSAGES, ADD_MESSAGE, CLEAR_CHAT, MESSAGES_LOADING } from './types';
 
-export const getChatHistory = chat_id => dispatch => {
+//Get chat history
+export const getChatHistory = recipient_id => dispatch => {
   dispatch(setMessagesLoading());
   axios
-    .get(`/api/messages/chat/${chat_id}`)
+    .get(`/api/messages/history/${recipient_id}`)
     .then(res => {
       dispatch({
         type: GET_MESSAGES,
@@ -26,15 +21,20 @@ export const getChatHistory = chat_id => dispatch => {
     );
 };
 
-// Get all profiles
-export const getLastChatMessages = (recipientID) => dispatch => {
+// Get last messages from all user`s chat
+export const getLastChatMessages = recipientID => dispatch => {
   dispatch(setMessagesLoading());
   axios
-    .get('/api/messages/all', recipientID ? {
-      params: {
-        recipient: recipientID
-      }
-    } : {})
+    .get(
+      '/api/messages/all',
+      recipientID
+        ? {
+            params: {
+              recipient: recipientID
+            }
+          }
+        : {}
+    )
     .then(res =>
       dispatch({
         type: GET_MESSAGES,
@@ -49,12 +49,13 @@ export const getLastChatMessages = (recipientID) => dispatch => {
     );
 };
 
-export const createChat = (recipient, newChat) => dispatch => {
+//Send message to recipient and create chat if didn`t exist
+export const sendMessage = (recipient, newChat) => dispatch => {
   axios
     .post(`api/messages/to/${recipient}`, newChat)
     .then(res =>
       dispatch({
-        type: GET_MESSAGE,
+        type: ADD_MESSAGE,
         payload: res.data
       })
     )
@@ -66,6 +67,7 @@ export const createChat = (recipient, newChat) => dispatch => {
     );
 };
 
+//send reply
 export const sendReply = chat_id => dispatch => {
   axios
     .post(`api/messages/chat/${chat_id}`)
@@ -83,6 +85,7 @@ export const sendReply = chat_id => dispatch => {
     );
 };
 
+//Delete chat
 export const deleteChat = chat_id => dispatch => {
   if (window.confirm('Are you sure?'))
     axios
@@ -101,6 +104,7 @@ export const deleteChat = chat_id => dispatch => {
       );
 };
 
+//Edit message
 export const editMessage = message_id => dispatch => {
   axios
     .post(`api/messages/${message_id}`)

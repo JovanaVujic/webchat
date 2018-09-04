@@ -4,7 +4,7 @@ import jwt_decode from 'jwt-decode';
 
 import { GET_ERRORS, SET_CURRENT_USER } from './types';
 
-// Register User
+// SignUp User
 export const signupUser = (userData, history) => dispatch => {
   axios
     .post('/api/users/signup', userData)
@@ -51,6 +51,11 @@ export const setCurrentUser = decoded => {
 
 // Log user out
 export const logoutUser = () => dispatch => {
+  axios
+    .post('/api/users/logout')
+    .then(user => console.log(user))
+    .catch(err => console.log(err));
+
   // Remove token from localStorage
   localStorage.removeItem('jwtToken');
   // Remove auth header for future requests

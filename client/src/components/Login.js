@@ -5,6 +5,9 @@ import { connect } from 'react-redux';
 import { loginUser } from './../actions/authActions';
 import InputField from './common/InputField';
 
+import io from 'socket.io-client';
+const socket = io();
+
 class Login extends Component {
   constructor() {
     super();
@@ -19,13 +22,21 @@ class Login extends Component {
   }
 
   componentDidMount = () => {
-    if (this.props.auth.isAuthenticated) {
+    const { auth } = this.props;
+
+    if (auth.isAuthenticated) {
+      socket.emit('login', auth.user.name);
       this.props.history.push('/webchat');
     }
   };
 
   componentWillReceiveProps = nextProps => {
+    if (nextProps.errors) {
+      this.setState({ errors: nextProps.errors });
+    }
+
     if (nextProps.auth.isAuthenticated) {
+      socket.emit('login', nextProps.auth.user.name);
       this.props.history.push('/webchat');
     }
 
@@ -46,6 +57,7 @@ class Login extends Component {
   };
 
   changeHandler = e => {
+    this.state.errors[e.target.name] = '';
     this.setState({ [e.target.name]: e.target.value });
   };
 
@@ -57,7 +69,7 @@ class Login extends Component {
         <div className="container">
           <div className="row">
             <div className="col-md-8 m-auto">
-              <h2 className="display-4 text-center">Log In</h2>
+              <h2 className="display-4 text-center mt-4">Log In</h2>
               <form onSubmit={this.submitHandler}>
                 <InputField
                   placeholder="Name"
@@ -80,7 +92,7 @@ class Login extends Component {
                 <input type="submit" className="btn btn-info btn-block mt-4" />
               </form>
               <p className="mt-3">
-                Didn`t sign up yet?
+                Didn`t sign up yet?{' '}
                 <Link to="/" className="font-weight-bold">
                   Signup
                 </Link>

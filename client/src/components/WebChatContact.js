@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
 import isEmpty from '../validation/is-empty';
 import avatar from './common/avatar.jpg';
-// import io from 'socket.io-client';
 
 class WebChatContact extends Component {
   render() {
-    const { profile } = this.props;
+    const { profile, recipient, numUnreadMsg } = this.props;
+
+    let alertContent = null;
+
+    if (profile.user._id === recipient._id) {
+      alertContent = numUnreadMsg === 0 ? null : <div className="chat-alert">{numUnreadMsg}</div>;
+    }
 
     return (
       <div className="contact">
@@ -16,9 +21,8 @@ class WebChatContact extends Component {
         />
         <div className="msg-preview">
           <h6>{profile.user.name}</h6>
-          <p className="text-muted">{profile.status}</p>
-          <small className="text-muted">a min ago</small>
-          <div className="chat-alert">1</div>
+          <p>{profile.status}</p>
+          {alertContent}
         </div>
       </div>
     );
